@@ -1,7 +1,7 @@
 #include "pluginLoader.hpp"
 #include <iostream>
 
-int main(int argc, char const *argv[])
+int main(const int argc, char const *argv[])
 {
     if(argc < 2)
     {
@@ -16,7 +16,7 @@ int main(int argc, char const *argv[])
         return -1;
     }
 
-    auto header = pl.getHeader();
+    const auto header = pl.getHeader();
     std::cout << "Successfully loaded plugin \"" << header->m_name << "\" with version " << header->m_version << "." << std::endl;
 
     return 0;

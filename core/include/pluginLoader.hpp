@@ -6,13 +6,13 @@
 class PluginLoader
 {
 private:
-    void* m_libHandle = NULL;
-    PluginHeader* m_header = NULL;
-    void printError();
-    bool getFunc(std::string, void*& func);
+    void* m_libHandle = nullptr;
+    PluginHeader* m_header = nullptr;
+    static void printError();
+    bool getFunc(const std::string&, void*& func) const;
 public:
-    PluginLoader(std::string name);
+    explicit PluginLoader(const std::string& name);
     ~PluginLoader();
-    operator bool() const;
-    PluginHeader* getHeader();
+    explicit operator bool() const;
+    PluginHeader* getHeader() const;
 };

@@ -5,32 +5,32 @@
 
 #if defined(WIN32) || defined(_WIN32)
 #define WINDOWS
-#include <windows.h>
+#include <Windows.h>
 #else
 #endif
 
 void PluginLoader::printError()
 {
-    auto id = GetLastError();
+    const auto id = GetLastError();
     char* message;
     FormatMessageA(
         FORMAT_MESSAGE_ALLOCATE_BUFFER | 
         FORMAT_MESSAGE_FROM_SYSTEM |
         FORMAT_MESSAGE_IGNORE_INSERTS,
-        NULL,
+        nullptr,
         id,
         MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-        (LPSTR) &message,
+        reinterpret_cast<LPSTR>(&message),
         0,
-        NULL);
+        nullptr);
     std::cout << "Error " << id << ": " << message;
 }
 
-bool PluginLoader::getFunc(std::string name, void*& func)
+bool PluginLoader::getFunc(const std::string& name, void*& func) const
 {
-    auto ptr = GetProcAddress((HMODULE)m_libHandle, name.c_str());
+    const auto ptr = GetProcAddress(static_cast<HMODULE>(m_libHandle), name.c_str());
 
-    if(ptr == NULL)
+    if(ptr == nullptr)
     {
         printError();
         return false;
@@ -40,11 +40,11 @@ bool PluginLoader::getFunc(std::string name, void*& func)
     return true;
 }
 
-PluginLoader::PluginLoader(std::string name)
+PluginLoader::PluginLoader(const std::string& name)
 {
-    auto libHandle = LoadLibraryA(name.c_str());
+    const auto libHandle = LoadLibraryA(name.c_str());
 
-    if(libHandle == NULL)
+    if(libHandle == nullptr)
     {
         printError();
         return;
@@ -52,11 +52,11 @@ PluginLoader::PluginLoader(std::string name)
 
     m_libHandle = libHandle;
 
-    void* headerFunc = NULL;
+    void* headerFunc = nullptr;
 
     if(getFunc("getHeader", headerFunc))
     {
-        m_header = ((pluginHeaderFunc*)headerFunc)();
+        m_header = static_cast<pluginHeaderFunc*>(headerFunc)();
     }
 }
 
@@ -65,7 +65,7 @@ PluginLoader::~PluginLoader()
     // library allocated this header when getPluginHeader was called - don't forget to delete it
     delete m_header;
 
-    if(!FreeLibrary((HMODULE)m_libHandle))
+    if(!FreeLibrary(static_cast<HMODULE>(m_libHandle)))
     {
         printError();
     }
@@ -73,10 +73,10 @@ PluginLoader::~PluginLoader()
 
 PluginLoader::operator bool() const
 {
-    return m_libHandle != NULL && m_header != NULL;
+    return m_libHandle != nullptr && m_header != nullptr;
 }
 
-PluginHeader* PluginLoader::getHeader()
+PluginHeader* PluginLoader::getHeader() const
 {
     return m_header;
 }
