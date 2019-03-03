@@ -18,15 +18,19 @@ set(PLUGIN_INTERFACE_INCLUDE_DIR ${CMAKE_SOURCE_DIR}/interface CACHE PATH "Path 
 
 # add the plugins - the macro copies the results to a single plugin dir
 
-set(plugin_dir plugins_out)
+set(plugin_dir ${CMAKE_BINARY_DIR}/plugins_out)
+if(NOT EXISTS ${plugin_dir})
+    file(MAKE_DIRECTORY ${plugin_dir})
+endif()
+
 macro(copy_results target)
     add_custom_command(
-        OUTPUT ${CMAKE_BINARY_DIR}/${plugin_dir}/${target}
+        OUTPUT ${plugin_dir}/${target}
         COMMAND ${CMAKE_COMMAND} -E copy
-        $<TARGET_FILE:${target}> ${CMAKE_BINARY_DIR}/${plugin_dir}/
+        $<TARGET_FILE:${target}> ${plugin_dir}/
         DEPENDS ${target})
     add_custom_target(copy_${target} ALL
-        DEPENDS ${CMAKE_BINARY_DIR}/${plugin_dir}/${target})
+        DEPENDS ${plugin_dir}/${target})
 endmacro()
 
 add_subdirectory(plugins/minimalPlugin)
