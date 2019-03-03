@@ -4,14 +4,14 @@ cmake_minimum_required(VERSION 3.9)
 
 set(source_dir src)
 set(include_dir include)
-set(interface_dir ../core/interface)
-set(generated_header_dir ${CMAKE_BINARY_DIR}/generated)
+set(generated_header_dir ${CMAKE_CURRENT_BINARY_DIR}/generated)
 
 set(export_header
-    ${generated_header_dir}/examplePlugin_export.hpp)
+    ${generated_header_dir}/plugin_export.hpp)
 
 set(headers
     ${include_dir}/examplePlugin.hpp
+    ${plugin_export_header}
     ${export_header})
 
 set(sources
@@ -20,12 +20,15 @@ set(sources
 # library
 
 include_directories(${include_dir})
-include_directories(${interface_dir})
+include_directories(${generated_header_dir})
+include_directories(${plugin_interface_header_dir})
 add_library(examplePlugin SHARED ${headers} ${sources})
+
+# generate export header
 
 include(GenerateExportHeader)
 generate_export_header(examplePlugin
-    BASE_NAME examplePlugin
-    EXPORT_MACRO_NAME EXAMPLEPLUGIN_EXPORT
+    BASE_NAME plugin
+    EXPORT_MACRO_NAME PLUGIN_EXPORT
     EXPORT_FILE_NAME ${export_header}
-    STATIC_DEFINE EXAMPLEPLUGIN_BUILT_AS_STATIC)
+    STATIC_DEFINE PLUGIN_BUILT_AS_STATIC)
