@@ -1,5 +1,13 @@
 cmake_minimum_required(VERSION 3.9)
 
+# option for finding interface
+
+option(PLUGIN_INTERFACE_INCLUDE_DIR "Path to the interface headers.")
+
+if(NOT EXISTS "${PLUGIN_INTERFACE_INCLUDE_DIR}/pluginExports.hpp")
+    message(FATAL_ERROR "Could not find pluginExports.hpp in given plugin interface dir.")
+endif()
+
 # sources
 
 set(source_dir src)
@@ -11,7 +19,7 @@ set(export_header
 
 set(headers
     ${include_dir}/examplePlugin.hpp
-    ${plugin_export_header}
+    ${PLUGIN_INTERFACE_INCLUDE_DIR}/pluginExports.hpp
     ${export_header})
 
 set(sources
@@ -21,7 +29,7 @@ set(sources
 
 include_directories(${include_dir})
 include_directories(${generated_header_dir})
-include_directories(${plugin_interface_header_dir})
+include_directories(${PLUGIN_INTERFACE_INCLUDE_DIR})
 add_library(examplePlugin SHARED ${headers} ${sources})
 
 # generate export header
