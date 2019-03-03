@@ -18,25 +18,29 @@ set(export_header
     ${generated_header_dir}/plugin_export.hpp)
 
 set(headers
-    ${include_dir}/examplePlugin.hpp
+    ${include_dir}/dependentPlugin.hpp
     ${PLUGIN_INTERFACE_INCLUDE_DIR}/pluginExports.hpp
     ${export_header})
 
 set(sources
-    ${source_dir}/examplePlugin.cpp)
+    ${source_dir}/dependentPlugin.cpp)
+
+# requires other library
+
+include_directories(../dependencyPlugin/include)
 
 # library
 
 include_directories(${include_dir})
 include_directories(${generated_header_dir})
 include_directories(${PLUGIN_INTERFACE_INCLUDE_DIR})
-add_library(examplePlugin SHARED ${headers} ${sources})
+add_library(dependentPlugin SHARED ${headers} ${sources})
 
 # generate export header
 
 include(GenerateExportHeader)
-generate_export_header(examplePlugin
-    BASE_NAME plugin
+generate_export_header(dependentPlugin
+    BASE_NAME dependentPlugin
     EXPORT_MACRO_NAME PLUGIN_EXPORT
     EXPORT_FILE_NAME ${export_header}
     STATIC_DEFINE PLUGIN_BUILT_AS_STATIC)
