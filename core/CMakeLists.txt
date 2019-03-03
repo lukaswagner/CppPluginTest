@@ -32,3 +32,9 @@ include_directories(${interface_dir})
 
 add_executable(core ${headers} ${sources})
 set(VS_STARTUP_PROJECT core)
+
+# for unix: link dl
+
+if(CMAKE_DL_LIBS)
+    target_link_libraries(core ${CMAKE_DL_LIBS})
+endif()

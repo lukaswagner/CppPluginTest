@@ -7,10 +7,12 @@
 #define WINDOWS
 #include <Windows.h>
 #else
+#include <dlfcn.h>
 #endif
 
 void PluginLoader::printError()
 {
+    #ifdef WINDOWS
     const auto id = GetLastError();
     char* message;
     FormatMessageA(
@@ -24,11 +26,18 @@ void PluginLoader::printError()
         0,
         nullptr);
     std::cout << "Error " << id << ": " << message;
+    #else
+    std::cout << "Error " << dlerror() << std::endl;
+    #endif
 }
 
 bool PluginLoader::getFunc(const std::string& name, void*& func) const
 {
+    #ifdef WINDOWS
     const auto ptr = GetProcAddress(static_cast<HMODULE>(m_libHandle), name.c_str());
+    #else
+    const auto ptr = dlsym(m_libHandle, name.c_str());
+    #endif
 
     if(ptr == nullptr)
     {
@@ -42,7 +51,11 @@ bool PluginLoader::getFunc(const std::string& name, void*& func) const
 
 PluginLoader::PluginLoader(const std::string& name)
 {
+    #ifdef WINDOWS
     const auto libHandle = LoadLibraryA(name.c_str());
+    #else
+    const auto libHandle = dlopen(name.c_str(), RTLD_LAZY);
+    #endif
 
     if(libHandle == nullptr)
     {
@@ -56,7 +69,7 @@ PluginLoader::PluginLoader(const std::string& name)
 
     if(getFunc("getHeader", headerFunc))
     {
-        m_header = static_cast<pluginHeaderFunc*>(headerFunc)();
+        m_header = reinterpret_cast<pluginHeaderFunc*>(headerFunc)();
     }
 }
 
@@ -65,10 +78,17 @@ PluginLoader::~PluginLoader()
     // library allocated this header when getPluginHeader was called - don't forget to delete it
     delete m_header;
 
+    #ifdef WINDOWS
     if(!FreeLibrary(static_cast<HMODULE>(m_libHandle)))
     {
         printError();
     }
+    #else
+    if(dlclose(m_libHandle) != 0)
+    {
+        printError();
+    }
+    #endif
 }
 
 PluginLoader::operator bool() const
